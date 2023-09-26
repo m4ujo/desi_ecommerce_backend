@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const stream = require('stream');
 const app = express();
 
 // Configura CORS para permitir el acceso desde un dominio específico
@@ -421,7 +422,7 @@ app.post('/product', async (req, res) => { // Add new product
         const imageStream = new stream.PassThrough();
         imageStream.end(buffer);
         imageStream.pipe(uploadResponse);
-        
+
     } catch (error) {
         console.error('Uploading error:', error);
         res.status(500).send({ status: 'Error' });

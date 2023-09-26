@@ -498,9 +498,9 @@ app.get('/products/:categoryId', async (req, res) => { // Send product by id
     try {
         let arr = []
 
-        if (req.params.categoryId === 1) {
+        if (req.params.categoryId == 1) {
             arr = await Product.findAll({
-                attributes: ['id', 'name', 'price', 'img', 'categoryId']
+                attributes: ['id', 'name', 'price', 'img', 'categoryId'],
             });
         } else {
             arr = await Product.findAll({
@@ -508,9 +508,6 @@ app.get('/products/:categoryId', async (req, res) => { // Send product by id
                 where: { categoryId: req.params.categoryId }
             });
         }
-
-
-        
         res.send({ status: '200', data: arr });
     } catch (err) {
         console.error(err);

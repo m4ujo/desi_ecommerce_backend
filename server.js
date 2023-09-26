@@ -494,11 +494,13 @@ app.put('/category', async (req, res) => { // Edit category
     }
 });
 
-app.get('/products', async (req, res) => {
+app.get('/products/todos', async (req, res) => {
     try {
         const arr = await Product.findAll({
             attributes: ['id', 'name', 'price', 'img', 'categoryId']
         });
+
+        console.log(arr)
     
         res.send({ status: '200', data: arr });
     } catch (err) {

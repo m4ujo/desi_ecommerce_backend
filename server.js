@@ -388,18 +388,23 @@ app.post('/category', async (req, res) => { // Create new category
 app.post('/product', async (req, res) => { // Add new product
     const { productName, category, price, img } = req.body;
 
-    const uploadResponse = await cloudinary.uploader.upload(img.path).then(result => {
-        console.log(result)
-    });
+    console.log(img.path)
 
-    await Product.create({
-        name: productName,
-        categoryId: category,
-        price: price,
-        img: uploadResponse.public_id
-    });
+    try {
+        const uploadResponse = await cloudinary.uploader.upload(img.path);
 
-    res.send({ status: '200' });
+        await Product.create({
+            name: productName,
+            categoryId: category,
+            price: price,
+            img: uploadResponse.public_id
+        });
+    
+        res.send({ status: '200' });
+    } catch (error) {
+        console.error('Uploading error:', error);
+        res.status(500).send({ status: 'Error' });
+    }
 });
 
 app.put('/product', async (req, res) => { // Edit product

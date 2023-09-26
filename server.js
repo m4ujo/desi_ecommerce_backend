@@ -388,19 +388,40 @@ app.post('/category', async (req, res) => { // Create new category
 app.post('/product', async (req, res) => { // Add new product
     const { productName, category, price, img } = req.body;
 
-    console.log(img.path)
-
     try {
-        const uploadResponse = await cloudinary.uploader.upload(img.path);
+        // Decodificar la imagen en base64
+        const imgData = img.replace(/^data:image\/\w+;base64,/, '');
+        const buffer = Buffer.from(imgData, 'base64');
 
-        await Product.create({
-            name: productName,
-            categoryId: category,
-            price: price,
-            img: uploadResponse.public_id
-        });
-    
-        res.send({ status: '200' });
+        // Subir la imagen a Cloudinary
+        const uploadResponse = await cloudinary.uploader.upload_stream(
+            { resource_type: 'auto' },
+            async (error, result) => {
+                if (error) {
+                    console.error('Error al subir la imagen a Cloudinary:', error);
+                    res.status(500).json({ status: 'Error' });
+                } else {
+                    // Aquí puedes utilizar result.public_id u otros datos de la imagen subida
+                    console.log('Imagen subida a Cloudinary:', result);
+
+                    // Crear el producto en la base de datos
+                    const newProduct = await Product.create({
+                        name: productName,
+                        categoryId: category,
+                        price: price,
+                        img: result.public_id // Usamos el public_id de Cloudinary como referencia a la imagen
+                    });
+
+                    res.status(200).json({ status: 'Éxito', product: newProduct });
+                }
+            }
+        );
+
+        // Enviar la imagen desde el búfer a Cloudinary
+        const imageStream = new stream.PassThrough();
+        imageStream.end(buffer);
+        imageStream.pipe(uploadResponse);
+        
     } catch (error) {
         console.error('Uploading error:', error);
         res.status(500).send({ status: 'Error' });

@@ -434,28 +434,48 @@ app.put('/product', async (req, res) => { // Edit product
         const { id, name, categoryId, price, img } = req.body;
         const isProduct = await Product.findOne({where: {id: id}});
 
-        console.log(req.body)
-        console.log(isProduct)
+        // Decodificar la imagen en base64
+        const imgData = img.replace(/^data:image\/\w+;base64,/, '');
+        const buffer = Buffer.from(imgData, 'base64');
 
         if (isProduct) {
             const arrKey = Object.keys(req.body);
             const isCategory = categoryId ? await Category.findOne({where: {name: categoryId}}) : null;
-            const uploadResponse = img ? await cloudinary.uploader.upload(img, { upload_preset: 'shoppingProject'}) : null;
-            
-            arrKey.forEach(key => {
-                if (key === 'name') {
-                    isProduct[key] = name;
-                } else if (key === 'categoryId') {
-                    isProduct[key] = isCategory.id
-                } else if (key === 'price') {
-                    isProduct[key] = price;
-                } else if (key === 'img') {
-                    isProduct.img = uploadResponse.public_id;
+            // const uploadResponse = img ? await cloudinary.uploader.upload(img, { upload_preset: 'shoppingProject'}) : null;
+
+            // Subir la imagen a Cloudinary
+            const uploadResponse = await cloudinary.uploader.upload_stream(
+                { resource_type: 'auto' },
+                async (error, result) => {
+                    if (error) {
+                        console.error('Error al subir la imagen a Cloudinary:', error);
+                        res.status(500).json({ status: 'Error' });
+                    } else {
+                        // Aquí puedes utilizar result.public_id u otros datos de la imagen subida
+                        console.log('Imagen subida a Cloudinary:', result);
+
+                        arrKey.forEach(key => {
+                            if (key === 'name') {
+                                isProduct[key] = name;
+                            } else if (key === 'categoryId') {
+                                isProduct[key] = isCategory.id
+                            } else if (key === 'price') {
+                                isProduct[key] = price;
+                            } else if (key === 'img') {
+                                isProduct.img = result.public_id;
+                            }
+                        });
+
+                        await isProduct.save();
+                        
+                    }
                 }
-            });
-            await isProduct.save();
+            )
+            // Enviar la imagen desde el búfer a Cloudinary
+            const imageStream = new stream.PassThrough();
+            imageStream.end(buffer);
+            imageStream.pipe(uploadResponse);
         }
-        res.send({ status: '200' });
     } catch (err) {
         console.error(err);
     }

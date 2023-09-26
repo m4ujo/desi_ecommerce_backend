@@ -434,6 +434,9 @@ app.put('/product', async (req, res) => { // Edit product
         const { id, name, categoryId, price, img } = req.body;
         const isProduct = await Product.findOne({where: {id: id}});
 
+        console.log(req.body)
+        console.log(isProduct)
+
         if (isProduct) {
             const arrKey = Object.keys(req.body);
             const isCategory = categoryId ? await Category.findOne({where: {name: categoryId}}) : null;

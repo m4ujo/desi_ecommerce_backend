@@ -467,7 +467,7 @@ app.put('/product', async (req, res) => { // Edit product
                         });
 
                         await isProduct.save();
-                        
+                        res.send({ status: '200' });
                     }
                 }
             )

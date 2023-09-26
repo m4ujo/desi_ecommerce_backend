@@ -388,9 +388,9 @@ app.post('/category', async (req, res) => { // Create new category
 app.post('/product', async (req, res) => { // Add new product
     const { productName, category, price, img } = req.body;
 
-    const uploadResponse = await cloudinary.uploader.upload(
-        img, { upload_preset: 'vacationProject' }
-    );
+    const uploadResponse = await cloudinary.uploader.upload(img).then(result => {
+        console.log(result)
+    });
 
     await Product.create({
         name: productName,

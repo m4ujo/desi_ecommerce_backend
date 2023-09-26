@@ -2,7 +2,19 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-app.use(cors());
+// Configura CORS para permitir el acceso desde un dominio específico
+const allowedOrigins = ['https://desi-ecommerce.vercel.app/', 'http://localhost:3000']; // Reemplaza con el dominio de tu frontend
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Acceso no permitido por CORS'));
+    }
+  },
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({
     extended: true,

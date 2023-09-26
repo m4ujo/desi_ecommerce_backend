@@ -525,6 +525,10 @@ app.delete('/productCart', (req, res) => { // Delete all products from cart
     res.send({ status: '200' });
 });
 
+app.get('/', (req, res) => {
+    res.send("Estoy llegando")
+})
+
 app.listen(3001, () => {
     console.log('This server is listening to port 3001');
 });

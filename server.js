@@ -494,13 +494,25 @@ app.put('/category', async (req, res) => { // Edit category
     }
 });
 
+app.get('/products', async (req, res) => {
+    try {
+        const arr = await Product.findAll({
+            attributes: ['id', 'name', 'price', 'img', 'categoryId']
+        });
+    
+        res.send({ status: '200', data: arr });
+    } catch (err) {
+        console.error(err);
+    }
+});
+
 app.get('/products/:categoryId', async (req, res) => { // Send product by id
     try {
         const arr = await Product.findAll({
             attributes: ['id', 'name', 'price', 'img', 'categoryId'],
             where: { categoryId: req.params.categoryId }
         });
-
+        
         res.send({ status: '200', data: arr });
     } catch (err) {
         console.error(err);

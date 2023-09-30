@@ -508,7 +508,8 @@ app.get('/products/:categoryId', async (req, res) => { // Send product by id
                 where: { categoryId: req.params.categoryId }
             });
         }
-        res.send({ status: '200', data: arr });
+
+        res.send({ status: '200', data: arr.length === 0 ? [] : arr });
     } catch (err) {
         console.error(err);
     }
